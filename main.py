@@ -1,5 +1,5 @@
 from cbers4asat import Cbers4aAPI##############################
-
+import glob
 from rasterio.warp import transform_geom
 from shapely.geometry import Polygon
 import matplotlib.pyplot as plt
@@ -86,6 +86,34 @@ class VegetativeIndexProcessor:
             with_folder=True
         )
 
+        # Utilize glob para listar pastas dentro de ./downloads_3
+        folders = glob.glob('./downloads_3/*/')
+
+        self.band_03_files = []
+        self.band_04_files = []
+
+        # Itera sobre as pastas encontradas
+        for folder in folders:
+            # Utilize glob novamente para listar todos os arquivos .TIF dentro de cada pasta
+            tif_files = glob.glob(os.path.join(folder, '*.tif'))
+
+            # Itera sobre os arquivos .TIF
+            for tif_file in tif_files:
+                # Verifica se o nome do arquivo contém a substring "BAND"
+                if "_BAND3" in tif_file:
+                    self.band_03_files.append(tif_file)
+                elif "_BAND4" in tif_file:
+                    self.band_04_files.append(tif_file)
+
+        ##Printando 
+        print("Arquivos da Banda 3:")
+        for file in self.band_03_files:
+            print(file)
+
+        print("\nArquivos da Banda 4:")
+        for file in self.band_04_files:
+            print(file)
+            
 if __name__ == "__main__":
     # Instanciando a classe VegetativeIndexProcessor passando as credenciais
     processor = VegetativeIndexProcessor('willianpicao6@gmail.com')
