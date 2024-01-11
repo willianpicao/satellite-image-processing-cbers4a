@@ -1,6 +1,0 @@
-sentinelsat
-rasterio
-shapely
-python-dotenv
-numpy
-pyproj
