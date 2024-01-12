@@ -121,5 +121,5 @@ class VegetativeIndexProcessor:
 
 
 if __name__ == "__main__":
-    ndvi_processor = Ndvi("teste", "file.geojson", date.today(), date.today(), 100)
+    ndvi_processor = Ndvi("teste", "file.geojson", date(2023, 12, 1), date.today(), 100)
     ndvi_processor()
