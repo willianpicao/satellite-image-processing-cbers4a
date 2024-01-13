@@ -1,7 +1,10 @@
+import rasterio as rio
 from cbers4asat import Cbers4aAPI
 from shapely.geometry import Polygon
 from geojson import loads
 from datetime import date
+from glob import glob
+from os.path import join
 
 
 class Ndvi:
@@ -34,8 +37,41 @@ class Ndvi:
                 initial_date=self._start_date,
                 end_date=self._end_date,
                 cloud=self._cloud_cover,
-                limit=1,
-                collections=["CBERS4A_WPM_L4_DN"],
+                limit=1000,
+                collections=["CBERS4A_WPM_L4_DN", "CBERS4A_WPM_L2_DN"],
             )
 
-            print(products)
+            if len(products.get("features")) > 0:
+                self._api.download(
+                    products=products,
+                    bands=["red", "nir"],
+                    outdir="downloads",
+                    with_folder=True,
+                )
+
+                for folder in glob("downloads/*"):
+                    red_file, nir_file = "", ""
+                    for band in glob(join(folder, "*.tif")):
+                        if "BAND3" in band:
+                            red_file = band
+                        elif "BAND4" in band:
+                            nir_file = band
+
+                    red_ds = rio.open(red_file)
+                    nir_ds = rio.open(nir_file)
+
+                    red_matrix = red_ds.read(1)
+                    nir_matrix = nir_ds.read(1)
+
+                    ndvi = (nir_matrix - red_matrix) / (nir_matrix + red_matrix)
+
+                    out_meta = red_ds.meta.copy()
+
+                    out_meta.update(dtype="float64")
+
+                    with rio.open(join(folder, "ndvi.tif"), "w", **out_meta) as dst:
+                        dst.write(ndvi)
+            else:
+                print(
+                    f"Nenhuma imagem encontrada entre a data de {self._start_date} - {self._end_date}"
+                )
