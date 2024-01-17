@@ -1,4 +1,5 @@
 import rasterio as rio
+import numpy as np
 from cbers4asat import Cbers4aAPI
 from shapely.geometry import Polygon
 from geojson import loads
@@ -60,8 +61,11 @@ class Ndvi:
                     red_ds = rio.open(red_file)
                     nir_ds = rio.open(nir_file)
 
-                    red_matrix = red_ds.read(1)
-                    nir_matrix = nir_ds.read(1)
+                    red_matrix = red_ds.read()
+                    nir_matrix = nir_ds.read()
+
+                    # Ignorar erro de divisão por zero
+                    np.seterr(divide="ignore", invalid="ignore")
 
                     ndvi = (nir_matrix - red_matrix) / (nir_matrix + red_matrix)
 
