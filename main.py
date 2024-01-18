@@ -1,4 +1,6 @@
 from datetime import date
+from indexProcessing import Ndvi
+
 
 if __name__ == "__main__":
     ndvi_processor = Ndvi(
